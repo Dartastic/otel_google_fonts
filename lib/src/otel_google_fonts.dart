@@ -2,7 +2,6 @@
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
 import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
-import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_google_fonts_suppression.dart';
 
@@ -48,42 +47,52 @@ Future<T> tracedGoogleFonts<T>({
   final t = tracer ?? OTel.tracerProvider().getTracer('otel_google_fonts');
   final span = t.startSpan('gfonts $operation', kind: SpanKind.client);
   try {
-    span.setStringAttribute('rpc.system', 'google_fonts');
+    span.addAttributes(
+        OTel.attributes([OTel.attributeString('rpc.system', 'google_fonts')]));
     final r = await invoke();
     final res = r.result;
     if (res != null) {
       if (res.familyName != null) {
-        span.setStringAttribute('gfonts.family', res.familyName!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('gfonts.family', res.familyName!)]));
       }
       if (res.variants != null) {
-        span.setStringAttribute('gfonts.variants', res.variants!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('gfonts.variants', res.variants!)]));
       }
       if (res.subsets != null) {
-        span.setStringAttribute('gfonts.subsets', res.subsets!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('gfonts.subsets', res.subsets!)]));
       }
       if (res.display != null) {
-        span.setStringAttribute('gfonts.display', res.display!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('gfonts.display', res.display!)]));
       }
       if (res.fontFormat != null) {
-        span.setStringAttribute('gfonts.format', res.fontFormat!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('gfonts.format', res.fontFormat!)]));
       }
       if (res.sizeBytes != null) {
-        span.setIntAttribute('http.response.body.size', res.sizeBytes!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeInt('http.response.body.size', res.sizeBytes!)]));
       }
       if (res.statusCode != null) {
-        span.setIntAttribute('http.response.status_code', res.statusCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeInt('http.response.status_code', res.statusCode!)]));
       }
       if (res.errorCode != null) {
-        span.setStringAttribute('gfonts.error.code', res.errorCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('gfonts.error.code', res.errorCode!)]));
       }
-      final fail =
-          res.errorCode != null ||
+      final fail = res.errorCode != null ||
           (res.statusCode != null && res.statusCode! >= 400);
       if (fail) {
-        span.setStringAttribute(
-          ErrorResource.errorType.key,
-          res.errorCode ?? 'gfonts.error',
-        );
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+            ErrorResource.errorType.key,
+            res.errorCode ?? 'gfonts.error',
+          )
+        ]));
         span.setStatus(SpanStatusCode.Error, res.errorMessage);
       }
     }
